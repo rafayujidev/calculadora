@@ -76,6 +76,147 @@
         0 25px 50px rgba(0, 0, 0, 0.4),
         0 0 0 1px rgba(255, 255, 255, 0.05) inset,
         0 1px 0 rgba(255, 255, 255, 0.1) inset;
+      transition: width 0.3s ease;
+    }
+
+    .calculator.scientific {
+      width: 680px;
+    }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.4);
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .mode-btn.active {
+      background: rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+    }
+
+    .mode-btn:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Scientific panel */
+    .scientific-panel {
+      display: none;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .calculator.scientific .scientific-panel {
+      display: grid;
+    }
+
+    .btn-sci {
+      height: 48px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      background: rgba(99, 102, 241, 0.1);
+      color: rgba(167, 139, 250, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-sci:hover {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a78bfa;
+    }
+
+    .btn-sci:active {
+      transform: scale(0.95);
+      background: rgba(99, 102, 241, 0.35);
+    }
+
+    /* Second layout row for scientific */
+    .sci-layout {
+      display: flex;
+      gap: 12px;
+    }
+
+    .calculator:not(.scientific) .sci-layout {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sci-sidebar {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 140px;
+    }
+
+    .calculator.scientific .sci-sidebar {
+      display: flex;
+    }
+
+    .btn-sci-tall {
+      height: 48px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      background: rgba(236, 72, 153, 0.12);
+      color: rgba(244, 114, 182, 0.85);
+      border: 1px solid rgba(236, 72, 153, 0.1);
+      flex: 1;
+    }
+
+    .btn-sci-tall:hover {
+      background: rgba(236, 72, 153, 0.22);
+      color: #f472b6;
+    }
+
+    .btn-sci-tall:active {
+      transform: scale(0.95);
+      background: rgba(236, 72, 153, 0.35);
+    }
+
+    /* Angle mode indicator */
+    .angle-mode {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .angle-btn {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255,255,255,0.3);
+      transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .angle-btn.active {
+      background: rgba(99, 102, 241, 0.25);
+      color: #a78bfa;
+      border-color: rgba(99, 102, 241, 0.2);
     }
 
     /* Display */
@@ -269,10 +410,63 @@
 <body>
   <div class="bg-gradient"></div>
 
-  <div class="calculator">
+  <div class="calculator" id="calculator">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeBasic">Basic</button>
+      <button class="mode-btn" id="modeScientific">Scientific</button>
+      <div class="angle-mode" id="angleMode" style="display:none;">
+        <button class="angle-btn active" id="angleDeg">DEG</button>
+        <button class="angle-btn" id="angleRad">RAD</button>
+      </div>
+    </div>
+
     <div class="display">
       <div class="expression" id="expression"></div>
       <div class="result" id="result">0</div>
+    </div>
+
+    <div class="sci-layout">
+      <div>
+        <!-- Scientific function row 1 -->
+        <div class="scientific-panel">
+          <button class="btn-sci" data-action="sci" data-value="sin">sin</button>
+          <button class="btn-sci" data-action="sci" data-value="cos">cos</button>
+          <button class="btn-sci" data-action="sci" data-value="tan">tan</button>
+          <button class="btn-sci" data-action="sci" data-value="log">log</button>
+          <button class="btn-sci" data-action="sci" data-value="ln">ln</button>
+
+          <button class="btn-sci" data-action="sci" data-value="asin">sin⁻¹</button>
+          <button class="btn-sci" data-action="sci" data-value="acos">cos⁻¹</button>
+          <button class="btn-sci" data-action="sci" data-value="atan">tan⁻¹</button>
+          <button class="btn-sci" data-action="sci" data-value="log2">log₂</button>
+          <button class="btn-sci" data-action="sci" data-value="exp">eˣ</button>
+
+          <button class="btn-sci" data-action="sci" data-value="sqrt">√</button>
+          <button class="btn-sci" data-action="sci" data-value="cbrt">∛</button>
+          <button class="btn-sci" data-action="sci" data-value="square">x²</button>
+          <button class="btn-sci" data-action="sci" data-value="cube">x³</button>
+          <button class="btn-sci" data-action="sci" data-value="power">xʸ</button>
+
+          <button class="btn-sci" data-action="sci" data-value="factorial">n!</button>
+          <button class="btn-sci" data-action="sci" data-value="inv">1/x</button>
+          <button class="btn-sci" data-action="sci" data-value="abs">|x|</button>
+          <button class="btn-sci" data-action="sci" data-value="pi">π</button>
+          <button class="btn-sci" data-action="sci" data-value="e">e</button>
+
+          <button class="btn-sci" data-action="sci" data-value="rand">rand</button>
+          <button class="btn-sci" data-action="sci" data-value="paren_open">(</button>
+          <button class="btn-sci" data-action="sci" data-value="paren_close">)</button>
+          <button class="btn-sci" data-action="sci" data-value="10x">10ˣ</button>
+          <button class="btn-sci" data-action="sci" data-value="2x">2ˣ</button>
+        </div>
+      </div>
+      <div class="sci-sidebar">
+        <!-- Sidebar with memory / history extras -->
+        <button class="btn-sci-tall" data-action="sci" data-value="ms">MS</button>
+        <button class="btn-sci-tall" data-action="sci" data-value="mr">MR</button>
+        <button class="btn-sci-tall" data-action="sci" data-value="mc">MC</button>
+        <button class="btn-sci-tall" data-action="sci" data-value="m+">M+</button>
+      </div>
     </div>
 
     <div class="buttons">
@@ -307,14 +501,87 @@
   <script>
     const expressionEl = document.getElementById('expression');
     const resultEl = document.getElementById('result');
+    const calcEl = document.getElementById('calculator');
+    const modeBasic = document.getElementById('modeBasic');
+    const modeScientific = document.getElementById('modeScientific');
+    const angleModeEl = document.getElementById('angleMode');
+    const angleDeg = document.getElementById('angleDeg');
+    const angleRad = document.getElementById('angleRad');
 
     let currentInput = '0';
     let previousInput = '';
     let operator = null;
     let shouldResetInput = false;
     let lastExpression = '';
+    let memory = 0;
+    let angleUnit = 'deg'; // 'deg' or 'rad'
+    let expressionStack = [];
+    let pendingOpenParens = 0;
 
     const operatorSymbols = { '/': '÷', '*': '×', '-': '−', '+': '+' };
+
+    // --- Mode toggle ---
+    modeBasic.addEventListener('click', () => {
+      calcEl.classList.remove('scientific');
+      modeBasic.classList.add('active');
+      modeScientific.classList.remove('active');
+      angleModeEl.style.display = 'none';
+    });
+
+    modeScientific.addEventListener('click', () => {
+      calcEl.classList.add('scientific');
+      modeScientific.classList.add('active');
+      modeBasic.classList.remove('active');
+      angleModeEl.style.display = 'flex';
+    });
+
+    angleDeg.addEventListener('click', () => {
+      angleUnit = 'deg';
+      angleDeg.classList.add('active');
+      angleRad.classList.remove('active');
+    });
+
+    angleRad.addEventListener('click', () => {
+      angleUnit = 'rad';
+      angleRad.classList.add('active');
+      angleDeg.classList.remove('active');
+    });
+
+    function toRad(val) {
+      return angleUnit === 'deg' ? (val * Math.PI / 180) : val;
+    }
+
+    function fromRad(val) {
+      return angleUnit === 'deg' ? (val * 180 / Math.PI) : val;
+    }
+
+    function factorial(n) {
+      if (n < 0) return NaN;
+      if (n === 0 || n === 1) return 1;
+      if (n > 170) return Infinity;
+      if (!Number.isInteger(n)) {
+        // Gamma approximation for non-integers via Stirling
+        return gamma(n + 1);
+      }
+      let r = 1;
+      for (let i = 2; i <= n; i++) r *= i;
+      return r;
+    }
+
+    function gamma(z) {
+      if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+      z -= 1;
+      const g = 7;
+      const c = [
+        0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+        771.32342877765313, -176.61502916214059, 12.507343278686905,
+        -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
+      ];
+      let x = c[0];
+      for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+      const t = z + g + 0.5;
+      return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+    }
 
     function formatNumber(num) {
       if (num === 'Error') return 'Error';
@@ -346,6 +613,7 @@
         case '-': return numA - numB;
         case '*': return numA * numB;
         case '/': return numB === 0 ? 'Error' : numA / numB;
+        case '**': return Math.pow(numA, numB);
         default: return numB;
       }
     }
@@ -443,6 +711,138 @@
       triggerPop();
     }
 
+    function handleScientific(func) {
+      if (currentInput === 'Error' && func !== 'pi' && func !== 'e' && func !== 'rand') return;
+      const val = parseFloat(currentInput);
+      let result;
+
+      switch (func) {
+        case 'sin':
+          result = Math.sin(toRad(val));
+          break;
+        case 'cos':
+          result = Math.cos(toRad(val));
+          break;
+        case 'tan':
+          result = Math.tan(toRad(val));
+          break;
+        case 'asin':
+          result = fromRad(Math.asin(val));
+          break;
+        case 'acos':
+          result = fromRad(Math.acos(val));
+          break;
+        case 'atan':
+          result = fromRad(Math.atan(val));
+          break;
+        case 'log':
+          result = Math.log10(val);
+          break;
+        case 'ln':
+          result = Math.log(val);
+          break;
+        case 'log2':
+          result = Math.log2(val);
+          break;
+        case 'exp':
+          result = Math.exp(val);
+          break;
+        case 'sqrt':
+          result = Math.sqrt(val);
+          break;
+        case 'cbrt':
+          result = Math.cbrt(val);
+          break;
+        case 'square':
+          result = val * val;
+          break;
+        case 'cube':
+          result = val * val * val;
+          break;
+        case 'power':
+          previousInput = currentInput;
+          operator = '**';
+          shouldResetInput = true;
+          expressionEl.textContent = formatNumber(previousInput) + ' xʸ';
+          return;
+        case 'factorial':
+          result = factorial(val);
+          break;
+        case 'inv':
+          result = 1 / val;
+          break;
+        case 'abs':
+          result = Math.abs(val);
+          break;
+        case 'pi':
+          currentInput = Math.PI.toString();
+          shouldResetInput = true;
+          updateDisplay();
+          triggerPop();
+          return;
+        case 'e':
+          currentInput = Math.E.toString();
+          shouldResetInput = true;
+          updateDisplay();
+          triggerPop();
+          return;
+        case 'rand':
+          currentInput = Math.random().toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
+          shouldResetInput = true;
+          updateDisplay();
+          triggerPop();
+          return;
+        case '10x':
+          result = Math.pow(10, val);
+          break;
+        case '2x':
+          result = Math.pow(2, val);
+          break;
+        case 'paren_open':
+          expressionStack.push(val);
+          pendingOpenParens++;
+          expressionEl.textContent = formatNumber(currentInput) + ' (';
+          return;
+        case 'paren_close':
+          if (pendingOpenParens > 0) {
+            pendingOpenParens--;
+            expressionEl.textContent = formatNumber(currentInput) + ')';
+          }
+          return;
+        case 'ms':
+          memory = val;
+          expressionEl.textContent = 'M=' + formatNumber(memory.toString());
+          triggerPop();
+          return;
+        case 'mr':
+          currentInput = memory.toString();
+          shouldResetInput = true;
+          updateDisplay();
+          triggerPop();
+          return;
+        case 'mc':
+          memory = 0;
+          expressionEl.textContent = 'M cleared';
+          return;
+        case 'm+':
+          memory += val;
+          expressionEl.textContent = 'M=' + formatNumber(memory.toString());
+          triggerPop();
+          return;
+        default:
+          return;
+      }
+
+      if (isNaN(result) || (!isFinite(result) && result !== Infinity)) {
+        currentInput = 'Error';
+      } else {
+        currentInput = parseFloat(result.toPrecision(12)).toString();
+      }
+      shouldResetInput = true;
+      updateDisplay();
+      triggerPop();
+    }
+
     // Ripple effect
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
@@ -467,6 +867,7 @@
         case 'clear': handleClear(); break;
         case 'toggle-sign': handleToggleSign(); break;
         case 'percent': handlePercent(); break;
+        case 'sci': handleScientific(value); break;
       }
     });
 
@@ -489,6 +890,15 @@
         updateDisplay();
       }
       else if (e.key === '%') handlePercent();
+      else if (e.key === 's' || e.key === 'S') handleScientific('sin');
+      else if (e.key === 'c' || e.key === 'C') handleScientific('cos');
+      else if (e.key === 't' || e.key === 'T') handleScientific('tan');
+      else if (e.key === 'l' || e.key === 'L') handleScientific('log');
+      else if (e.key === 'n' || e.key === 'N') handleScientific('ln');
+      else if (e.key === 'r' || e.key === 'R') handleScientific('sqrt');
+      else if (e.key === 'p' || e.key === 'P') handleScientific('pi');
+      else if (e.key === '^') { handleOperator('**'); }
+      else if (e.key === '!') handleScientific('factorial');
     });
   </script>
 </body>
