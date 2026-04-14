@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0f;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-gradient::before,
+    .bg-gradient::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.5;
+      animation: float 8s ease-in-out infinite alternate;
+    }
+
+    .bg-gradient::before {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      top: -10%;
+      left: -5%;
+    }
+
+    .bg-gradient::after {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      bottom: -10%;
+      right: -5%;
+      animation-delay: -4s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -30px) scale(1.1); }
+    }
+
+    /* Calculator container */
+    .calculator {
+      position: relative;
+      z-index: 1;
+      width: 340px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 24px;
+      box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 1px 0 rgba(255, 255, 255, 0.1) inset;
+    }
+
+    /* Display */
+    .display {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .expression {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 400;
+      min-height: 22px;
+      word-break: break-all;
+      text-align: right;
+      width: 100%;
+      transition: color 0.2s;
+    }
+
+    .result {
+      font-size: 42px;
+      color: #fff;
+      font-weight: 300;
+      letter-spacing: -1px;
+      word-break: break-all;
+      text-align: right;
+      width: 100%;
+      line-height: 1.1;
+      transition: font-size 0.15s ease;
+    }
+
+    .result.shrink {
+      font-size: 32px;
+    }
+
+    /* Button grid */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 62px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+      outline: none;
+    }
+
+    /* Ripple effect */
+    button::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.25), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    button:active::after {
+      opacity: 1;
+    }
+
+    /* Number buttons */
+    .btn-number {
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-number:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-number:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Operator buttons */
+    .btn-operator {
+      background: rgba(139, 92, 246, 0.25);
+      color: #a78bfa;
+      border: 1px solid rgba(139, 92, 246, 0.15);
+    }
+
+    .btn-operator:hover {
+      background: rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-operator:active {
+      transform: scale(0.95);
+      background: rgba(139, 92, 246, 0.5);
+    }
+
+    /* Function buttons */
+    .btn-function {
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 17px;
+    }
+
+    .btn-function:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-function:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Equals button */
+    .btn-equals {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-size: 24px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-equals:hover {
+      background: linear-gradient(135deg, #7577f5, #9b6ff9);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-equals:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Clear button */
+    .btn-clear {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.1);
+    }
+
+    .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-clear:active {
+      transform: scale(0.95);
+      background: rgba(239, 68, 68, 0.4);
+    }
+
+    /* Zero button spans 2 columns */
+    .btn-zero {
+      grid-column: span 2;
+    }
+
+    /* Keyboard hint */
+    .keyboard-hint {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    /* Animation for result change */
+    @keyframes resultPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .result.pop {
+      animation: resultPop 0.15s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <div class="calculator">
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="result" id="result">0</div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-clear" data-action="clear">AC</button>
+      <button class="btn-function" data-action="toggle-sign">+/−</button>
+      <button class="btn-function" data-action="percent">%</button>
+      <button class="btn-operator" data-action="operator" data-value="/">÷</button>
+
+      <button class="btn-number" data-action="number" data-value="7">7</button>
+      <button class="btn-number" data-action="number" data-value="8">8</button>
+      <button class="btn-number" data-action="number" data-value="9">9</button>
+      <button class="btn-operator" data-action="operator" data-value="*">×</button>
+
+      <button class="btn-number" data-action="number" data-value="4">4</button>
+      <button class="btn-number" data-action="number" data-value="5">5</button>
+      <button class="btn-number" data-action="number" data-value="6">6</button>
+      <button class="btn-operator" data-action="operator" data-value="-">−</button>
+
+      <button class="btn-number" data-action="number" data-value="1">1</button>
+      <button class="btn-number" data-action="number" data-value="2">2</button>
+      <button class="btn-number" data-action="number" data-value="3">3</button>
+      <button class="btn-operator" data-action="operator" data-value="+">+</button>
+
+      <button class="btn-number btn-zero" data-action="number" data-value="0">0</button>
+      <button class="btn-number" data-action="decimal">.</button>
+      <button class="btn-equals" data-action="equals">=</button>
+    </div>
+
+    <div class="keyboard-hint">Keyboard supported</div>
+  </div>
+
+  <script>
+    const expressionEl = document.getElementById('expression');
+    const resultEl = document.getElementById('result');
+
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = null;
+    let shouldResetInput = false;
+    let lastExpression = '';
+
+    const operatorSymbols = { '/': '÷', '*': '×', '-': '−', '+': '+' };
+
+    function formatNumber(num) {
+      if (num === 'Error') return 'Error';
+      const str = num.toString();
+      if (str.includes('.')) {
+        const [intPart, decPart] = str.split('.');
+        const formatted = Number(intPart).toLocaleString('en-US');
+        return formatted + '.' + decPart;
+      }
+      return Number(num).toLocaleString('en-US', { maximumFractionDigits: 12 });
+    }
+
+    function updateDisplay() {
+      resultEl.textContent = formatNumber(currentInput);
+      resultEl.classList.toggle('shrink', resultEl.textContent.length > 12);
+    }
+
+    function triggerPop() {
+      resultEl.classList.remove('pop');
+      void resultEl.offsetWidth;
+      resultEl.classList.add('pop');
+    }
+
+    function calculate(a, op, b) {
+      const numA = parseFloat(a);
+      const numB = parseFloat(b);
+      switch (op) {
+        case '+': return numA + numB;
+        case '-': return numA - numB;
+        case '*': return numA * numB;
+        case '/': return numB === 0 ? 'Error' : numA / numB;
+        default: return numB;
+      }
+    }
+
+    function handleNumber(value) {
+      if (currentInput === 'Error') currentInput = '0';
+      if (shouldResetInput) {
+        currentInput = value;
+        shouldResetInput = false;
+      } else {
+        if (currentInput === '0' && value !== '0') {
+          currentInput = value;
+        } else if (currentInput === '0' && value === '0') {
+          // do nothing
+        } else {
+          if (currentInput.replace(/[^0-9]/g, '').length >= 15) return;
+          currentInput += value;
+        }
+      }
+      updateDisplay();
+    }
+
+    function handleDecimal() {
+      if (shouldResetInput) {
+        currentInput = '0.';
+        shouldResetInput = false;
+      } else if (!currentInput.includes('.')) {
+        currentInput += '.';
+      }
+      updateDisplay();
+    }
+
+    function handleOperator(op) {
+      if (currentInput === 'Error') return;
+      if (operator && !shouldResetInput) {
+        const result = calculate(previousInput, operator, currentInput);
+        if (result === 'Error') {
+          currentInput = 'Error';
+          previousInput = '';
+          operator = null;
+          expressionEl.textContent = '';
+          updateDisplay();
+          return;
+        }
+        currentInput = result.toString();
+        updateDisplay();
+        triggerPop();
+      }
+      previousInput = currentInput;
+      operator = op;
+      shouldResetInput = true;
+      expressionEl.textContent = formatNumber(previousInput) + ' ' + operatorSymbols[op];
+    }
+
+    function handleEquals() {
+      if (!operator || currentInput === 'Error') return;
+      expressionEl.textContent = formatNumber(previousInput) + ' ' + operatorSymbols[operator] + ' ' + formatNumber(currentInput) + ' =';
+      const result = calculate(previousInput, operator, currentInput);
+      if (result === 'Error') {
+        currentInput = 'Error';
+      } else {
+        // Round to avoid floating point issues
+        currentInput = parseFloat(result.toPrecision(12)).toString();
+      }
+      previousInput = '';
+      operator = null;
+      shouldResetInput = true;
+      updateDisplay();
+      triggerPop();
+    }
+
+    function handleClear() {
+      currentInput = '0';
+      previousInput = '';
+      operator = null;
+      shouldResetInput = false;
+      expressionEl.textContent = '';
+      updateDisplay();
+    }
+
+    function handleToggleSign() {
+      if (currentInput === '0' || currentInput === 'Error') return;
+      if (currentInput.startsWith('-')) {
+        currentInput = currentInput.slice(1);
+      } else {
+        currentInput = '-' + currentInput;
+      }
+      updateDisplay();
+    }
+
+    function handlePercent() {
+      if (currentInput === 'Error') return;
+      currentInput = (parseFloat(currentInput) / 100).toString();
+      updateDisplay();
+      triggerPop();
+    }
+
+    // Ripple effect
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        const rect = btn.getBoundingClientRect();
+        btn.style.setProperty('--x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+        btn.style.setProperty('--y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+      });
+    });
+
+    // Button click handlers
+    document.querySelector('.buttons').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const value = btn.dataset.value;
+
+      switch (action) {
+        case 'number': handleNumber(value); break;
+        case 'decimal': handleDecimal(); break;
+        case 'operator': handleOperator(value); break;
+        case 'equals': handleEquals(); break;
+        case 'clear': handleClear(); break;
+        case 'toggle-sign': handleToggleSign(); break;
+        case 'percent': handlePercent(); break;
+      }
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
+      else if (e.key === '.') handleDecimal();
+      else if (e.key === '+') handleOperator('+');
+      else if (e.key === '-') handleOperator('-');
+      else if (e.key === '*') handleOperator('*');
+      else if (e.key === '/') { e.preventDefault(); handleOperator('/'); }
+      else if (e.key === 'Enter' || e.key === '=') handleEquals();
+      else if (e.key === 'Escape' || e.key === 'Delete') handleClear();
+      else if (e.key === 'Backspace') {
+        if (currentInput.length > 1 && !shouldResetInput) {
+          currentInput = currentInput.slice(0, -1);
+        } else {
+          currentInput = '0';
+        }
+        updateDisplay();
+      }
+      else if (e.key === '%') handlePercent();
+    });
+  </script>
+</body>
+</html>
